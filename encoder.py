@@ -107,3 +107,18 @@ def encoder_layer(X, Wq, Wk, Wv, W1, b1, W2, b2):
     X_ffn = feed_forward(X_norm1, W1, b1, W2, b2)
     X_out = residual_add_norm(X_norm1, X_ffn)
     return X_out
+
+
+def init_encoder_stack(n_layers=N_LAYERS, d_model=D_MODEL, d_ff=D_FF):
+    layers = []
+    for _ in range(n_layers):
+        Wq, Wk, Wv = init_attention_weights(d_model)
+        W1, b1, W2, b2 = init_ffn_weights(d_model, d_ff)
+        layers.append((Wq, Wk, Wv, W1, b1, W2, b2))
+    return layers
+
+
+def encoder(X, layers):
+    for Wq, Wk, Wv, W1, b1, W2, b2 in layers:
+        X = encoder_layer(X, Wq, Wk, Wv, W1, b1, W2, b2)
+    return X

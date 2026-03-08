@@ -2,12 +2,15 @@ import numpy as np
 
 from encoder import (
     D_MODEL,
+    N_LAYERS,
     create_embedding_table,
     create_vocabulary,
+    encoder,
     encoder_layer,
     feed_forward,
     get_embeddings,
     init_attention_weights,
+    init_encoder_stack,
     init_ffn_weights,
     layer_norm,
     residual_add_norm,
@@ -147,9 +150,33 @@ def test_encoder_layer():
     print("\n[OK] Etapa 5 - Todos os testes passaram!")
 
 
+def test_encoder_stack():
+    np.random.seed(42)
+
+    words = ["o", "banco", "bloqueou", "cartao"]
+    _, word_to_id = create_vocabulary(words)
+    token_ids = tokenize("o banco bloqueou cartao", word_to_id)
+    embedding_table = create_embedding_table(len(words))
+    X = get_embeddings(token_ids, embedding_table)
+
+    layers = init_encoder_stack()
+    assert len(layers) == N_LAYERS, f"Esperado {N_LAYERS} camadas, obtido {len(layers)}"
+
+    Z = encoder(X, layers)
+    assert Z.shape == X.shape, f"Shape esperado {X.shape}, obtido {Z.shape}"
+
+    assert not np.allclose(Z, X), "Saida Z nao deveria ser igual a entrada X"
+
+    print(f"Shape de entrada X: {X.shape}")
+    print(f"Numero de camadas: {N_LAYERS}")
+    print(f"Shape da saida Z: {Z.shape}")
+    print("\n[OK] Etapa 6 - Todos os testes passaram!")
+
+
 if __name__ == "__main__":
     test_vocabulary_and_embeddings()
     test_softmax_and_attention()
     test_residual_and_layer_norm()
     test_feed_forward()
     test_encoder_layer()
+    test_encoder_stack()
