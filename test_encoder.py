@@ -4,8 +4,10 @@ from encoder import (
     D_MODEL,
     create_embedding_table,
     create_vocabulary,
+    feed_forward,
     get_embeddings,
     init_attention_weights,
+    init_ffn_weights,
     layer_norm,
     residual_add_norm,
     scaled_dot_product_attention,
@@ -104,7 +106,26 @@ def test_residual_and_layer_norm():
     print("\n[OK] Etapa 3 - Todos os testes passaram!")
 
 
+def test_feed_forward():
+    np.random.seed(42)
+
+    words = ["o", "banco", "bloqueou", "cartao"]
+    _, word_to_id = create_vocabulary(words)
+    token_ids = tokenize("o banco bloqueou cartao", word_to_id)
+    embedding_table = create_embedding_table(len(words))
+    X = get_embeddings(token_ids, embedding_table)
+
+    W1, b1, W2, b2 = init_ffn_weights()
+    output = feed_forward(X, W1, b1, W2, b2)
+    assert output.shape == X.shape, f"Shape esperado {X.shape}, obtido {output.shape}"
+
+    print(f"Shape de entrada X: {X.shape}")
+    print(f"Shape da saida da FFN: {output.shape}")
+    print("\n[OK] Etapa 4 - Todos os testes passaram!")
+
+
 if __name__ == "__main__":
     test_vocabulary_and_embeddings()
     test_softmax_and_attention()
     test_residual_and_layer_norm()
+    test_feed_forward()
