@@ -72,3 +72,15 @@ def init_attention_weights(d_model=D_MODEL):
     Wk = np.random.randn(d_model, d_model)
     Wv = np.random.randn(d_model, d_model)
     return Wq, Wk, Wv
+
+
+def layer_norm(x, eps=EPSILON):
+    """Layer Normalization: (x - media) / sqrt(variancia + eps) no ultimo eixo."""
+    media = np.mean(x, axis=-1, keepdims=True)
+    variancia = np.var(x, axis=-1, keepdims=True)
+    return (x - media) / np.sqrt(variancia + eps)
+
+
+def residual_add_norm(x, sublayer_out, eps=EPSILON):
+    """Conexao residual + LayerNorm: LayerNorm(x + sublayer_out)."""
+    return layer_norm(x + sublayer_out, eps)
