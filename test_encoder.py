@@ -4,6 +4,7 @@ from encoder import (
     D_MODEL,
     create_embedding_table,
     create_vocabulary,
+    encoder_layer,
     feed_forward,
     get_embeddings,
     init_attention_weights,
@@ -124,8 +125,31 @@ def test_feed_forward():
     print("\n[OK] Etapa 4 - Todos os testes passaram!")
 
 
+def test_encoder_layer():
+    np.random.seed(42)
+
+    words = ["o", "banco", "bloqueou", "cartao"]
+    _, word_to_id = create_vocabulary(words)
+    token_ids = tokenize("o banco bloqueou cartao", word_to_id)
+    embedding_table = create_embedding_table(len(words))
+    X = get_embeddings(token_ids, embedding_table)
+
+    Wq, Wk, Wv = init_attention_weights()
+    W1, b1, W2, b2 = init_ffn_weights()
+
+    output = encoder_layer(X, Wq, Wk, Wv, W1, b1, W2, b2)
+    assert output.shape == X.shape, f"Shape esperado {X.shape}, obtido {output.shape}"
+
+    assert not np.allclose(output, X), "Saida nao deveria ser igual a entrada"
+
+    print(f"Shape de entrada X: {X.shape}")
+    print(f"Shape da saida do encoder layer: {output.shape}")
+    print("\n[OK] Etapa 5 - Todos os testes passaram!")
+
+
 if __name__ == "__main__":
     test_vocabulary_and_embeddings()
     test_softmax_and_attention()
     test_residual_and_layer_norm()
     test_feed_forward()
+    test_encoder_layer()

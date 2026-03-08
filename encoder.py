@@ -99,3 +99,11 @@ def feed_forward(X, W1, b1, W2, b2):
     """
     hidden = np.maximum(0, X @ W1 + b1)
     return hidden @ W2 + b2
+
+
+def encoder_layer(X, Wq, Wk, Wv, W1, b1, W2, b2):
+    X_att = scaled_dot_product_attention(X, Wq, Wk, Wv)
+    X_norm1 = residual_add_norm(X, X_att)
+    X_ffn = feed_forward(X_norm1, W1, b1, W2, b2)
+    X_out = residual_add_norm(X_norm1, X_ffn)
+    return X_out
